@@ -11,6 +11,7 @@
 		22C99DDE1F60E88700D26619 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C99DDD1F60E88700D26619 /* ViewController.swift */; };
 		22C99DE01F60E88700D26619 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 22C99DDF1F60E88700D26619 /* Assets.xcassets */; };
 		22C99DE31F60E88700D26619 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 22C99DE11F60E88700D26619 /* Main.storyboard */; };
+		22C99DEC1F60E92200D26619 /* LMC_Interpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C99DEB1F60E92200D26619 /* LMC_Interpreter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,6 +22,7 @@
 		22C99DE21F60E88700D26619 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		22C99DE41F60E88700D26619 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		22C99DE51F60E88700D26619 /* LMC.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LMC.entitlements; sourceTree = "<group>"; };
+		22C99DEB1F60E92200D26619 /* LMC_Interpreter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LMC_Interpreter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,6 +57,7 @@
 			children = (
 				22C99DDB1F60E88700D26619 /* AppDelegate.swift */,
 				22C99DDD1F60E88700D26619 /* ViewController.swift */,
+				22C99DEB1F60E92200D26619 /* LMC_Interpreter.swift */,
 				22C99DDF1F60E88700D26619 /* Assets.xcassets */,
 				22C99DE11F60E88700D26619 /* Main.storyboard */,
 				22C99DE41F60E88700D26619 /* Info.plist */,
@@ -135,6 +138,7 @@
 			files = (
 				22C99DDE1F60E88700D26619 /* ViewController.swift in Sources */,
 				22C99DDC1F60E88700D26619 /* AppDelegate.swift in Sources */,
+				22C99DEC1F60E92200D26619 /* LMC_Interpreter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
