@@ -7,7 +7,6 @@
 //
 
 import Foundation
-
 struct DecimalInstruction {
     let instruction:Int
     let address:Int
@@ -17,7 +16,12 @@ class LMC:NSObject {
     var memory = [Int](repeating: 0, count: 100)
     var acc:Int = 0
     var programCounter:Int = 0
-    
+	//Our default print method
+	var printBlock:((Any)->Void) = {
+		toPrint in
+		print(toPrint)
+	}
+	
     
     /// Parse asm into decimal code
     ///
@@ -62,8 +66,14 @@ class LMC:NSObject {
 			var compiled = instruction
 			
 			//If we have two parts to the instruction there is a paramater address
-			if line.count == 2, let address = Int(line[1]) {
-				compiled += String.init(format: "%02d", address)
+			if line.count == 2  {
+				if let address = Int(line[1]) {
+					compiled += String.init(format: "%02d", address)
+				}else {
+					//If our second part exists but (the addr) is not parseable as an address it's an unresolved symbol
+					dPrint("Line: \(line) failed to compile. Unresolvable symbol.")
+					return
+				}
 			}
 			
 			//Now replace each ASCII instruction with the 100 code
@@ -81,8 +91,8 @@ class LMC:NSObject {
 			if let decimalInstruction = Int(compiled) {
 				decimalProgram.append(decimalInstruction)
 			}else {
-				print("Line: \(line) failed to compile.")
-				exit(-1)
+				dPrint("Line: \(line) failed to compile.")
+				return
 			}
 		}
 		
@@ -137,7 +147,7 @@ class LMC:NSObject {
         for i in 0..<fromDecimal.count {
             memory[i] = fromDecimal[i]
         }
-        print("LOADED \(fromDecimal.count) instructions")
+        dPrint("LOADED \(fromDecimal.count) instructions")
     }
     
     
@@ -161,14 +171,14 @@ class LMC:NSObject {
             // Now let's execute said instruciton.
             // First check for HLT (000)
             if instruction.instruction == 0 {
-                print("[\(programCounter)] HALT")
+                dPrint("[\(programCounter)] HALT")
                 shouldHalt = true
                 break
             //Check for 1xx instruction (ADD: Add the contents of address xx to the accumulator.)
             }else if instruction.instruction == 1 {
                 //Grab our content to add to ACC from mem
                 let toAddValue = memory[instruction.address]
-                //print("[\(programCounter)] ADD ACC: \(acc) with new \(toAddValue). ACC now equals: \(acc + toAddValue)")
+                //dPrint("[\(programCounter)] ADD ACC: \(acc) with new \(toAddValue). ACC now equals: \(acc + toAddValue)")
 
                 acc += toAddValue
                 
@@ -178,7 +188,7 @@ class LMC:NSObject {
             }else if instruction.instruction == 2 {
                 //Grab our content to sub to ACC from mem
                 let toSubValue = memory[instruction.address]
-                //print("[\(programCounter)] SUB ACC: \(acc) with new \(toSubValue). ACC now equals: \(acc - toSubValue)")
+                //dPrint("[\(programCounter)] SUB ACC: \(acc) with new \(toSubValue). ACC now equals: \(acc - toSubValue)")
                 
                 acc -= toSubValue
                 
@@ -186,7 +196,7 @@ class LMC:NSObject {
                 programCounter += 1
             //Check for 3xx (Store the contents of the accumulator to address xx.)
             }else if instruction.instruction == 3 {
-                //print("[\(programCounter)] STA \(acc) into \(instruction.address)")
+                //dPrint("[\(programCounter)] STA \(acc) into \(instruction.address)")
                 //Set our memory address of our instruciton to acc, pretty easy.
                 memory[instruction.address] = acc
                 
@@ -194,18 +204,18 @@ class LMC:NSObject {
                 programCounter += 1
             //Check for 4xx (BAD INSTRUCTION???)
             }else if instruction.instruction == 4 {
-                print("[\(programCounter)] 4xx instruction is an undefined instruction, HALTING!!!")
+                dPrint("[\(programCounter)] 4xx instruction is an undefined instruction, HALTING!!!")
                 shouldHalt = true
                 break
             //Check for 5xx (Load the contents of address xx onto the accumulator.)
             }else if instruction.instruction == 5 {
-                //print("[\(programCounter)] LDA")
+                //dPrint("[\(programCounter)] LDA")
                 acc = memory[instruction.address]
                 //Increase our program counter since we aren't moving anywhere special
                 programCounter += 1
             //Check for 6xx (Set the program counter to address xx.)
             }else if instruction.instruction == 6 {
-                //print("[\(programCounter)] BRA: moving execution to \(instruction.address)")
+                //dPrint("[\(programCounter)] BRA: moving execution to \(instruction.address)")
                 
                 //We don't increment here, we jump to the new instruction
                 programCounter = instruction.address
@@ -213,11 +223,11 @@ class LMC:NSObject {
             }else if instruction.instruction == 7 {
                 if acc == 0 {
                     //Branch condition met, jump.
-                    //print("[\(programCounter)] BRZ: moving execution to \(instruction.address)")
+                    //dPrint("[\(programCounter)] BRZ: moving execution to \(instruction.address)")
                     programCounter = instruction.address
                 }else {
                     //We didn't meet the condition, continue
-                    //print("[\(programCounter)] BRZ: continue")
+                    //dPrint("[\(programCounter)] BRZ: continue")
                     programCounter += 1
                 }
             }
@@ -225,11 +235,11 @@ class LMC:NSObject {
             else if instruction.instruction == 8 {
                 if acc >= 0 {
                     //Branch condition met, jump.
-                    //print("[\(programCounter)] BRP: moving execution to \(instruction.address)")
+                    //dPrint("[\(programCounter)] BRP: moving execution to \(instruction.address)")
                     programCounter = instruction.address
                 }else {
                     //We didn't meet the condition, continue
-                    //print("[\(programCounter)] BRP: continue")
+                    //dPrint("[\(programCounter)] BRP: continue")
                     programCounter += 1
                 }
             }
@@ -238,16 +248,16 @@ class LMC:NSObject {
                 //The address on IO calls sets the output destination. 
                 //901 (Copy the value from the “in box” onto the accumulator.)
                 if instruction.address == 1 {
-                    print("[\(programCounter)] 901: input is not currently supported, setting ACC to 0. Plesae store data manually instead.")
+                    dPrint("[\(programCounter)] 901: input is not currently supported, setting ACC to 0.Store data manually instead.")
                     acc = 0
                     
                 }
                 //902 (Copy the value from the accumulator to the “out box”.)
                 else if instruction.address == 2 {
-                    //print("[\(programCounter)] 902: printing ACC")
-                    print("::>\(acc)")
+                    //dPrint("[\(programCounter)] 902: printing ACC")
+                    dPrint("::>\(acc)")
                 }else {
-                    print("[\(programCounter)] 9xx: I/O destination/source \(instruction.address) is not valid for LMC, HALTING!!!")
+                    dPrint("[\(programCounter)] 9xx: I/O destination/source \(instruction.address) is not valid for LMC, HALTING!!!")
                     shouldHalt = true
                     break
                 }
@@ -257,5 +267,9 @@ class LMC:NSObject {
             }
         }
     }
+	
+	func dPrint(_ string:Any) {
+		printBlock(string)
+	}
 }
 
