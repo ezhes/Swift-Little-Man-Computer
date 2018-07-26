@@ -42,8 +42,33 @@ class ViewController: NSViewController {
 			toPrint in
 			self.outText.string += "\(String(describing: toPrint))\n"
 		}
+		
+		machine.getInputBlock = {
+			let alert = NSAlert.init()
+			alert.messageText = "Input requested"
+			alert.addButton(withTitle: "Send")
+			alert.addButton(withTitle: "Cancel")
+			
+			let textfield = NSTextField.init(frame: NSRect.init(x: 0, y: 0, width: 200, height: 24))
+			textfield.stringValue = ""
+			alert.accessoryView = textfield
+			let result = alert.runModal()
+			
+			//Check if they hit ok
+			if result == NSApplication.ModalResponse.alertFirstButtonReturn {
+				if let value = Int(textfield.stringValue) {
+					return value
+				}else {
+					machine.dPrint("[!!!] Invalid input recieved, failing to 0")
+					return 0
+				}
+			}else {
+				return 0
+			}
+		}
 		//build
 		machine.assembleProgramIntoMemory(fromString: codeText.string)
+
 		//..and run!
 		machine.execute()
 	}

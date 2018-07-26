@@ -22,6 +22,11 @@ class LMC:NSObject {
 		print(toPrint)
 	}
 	
+	var getInputBlock:(()->Int) = {
+		print("901: input is not currently supported, setting ACC to 0.Store data manually instead.")
+		return 0
+	}
+	
     
     /// Parse asm into decimal code
     ///
@@ -248,14 +253,14 @@ class LMC:NSObject {
                 //The address on IO calls sets the output destination. 
                 //901 (Copy the value from the “in box” onto the accumulator.)
                 if instruction.address == 1 {
-                    dPrint("[\(programCounter)] 901: input is not currently supported, setting ACC to 0.Store data manually instead.")
-                    acc = 0
+					//Call the custom handler for input
+                    acc = getInputBlock()
                     
                 }
                 //902 (Copy the value from the accumulator to the “out box”.)
                 else if instruction.address == 2 {
                     //dPrint("[\(programCounter)] 902: printing ACC")
-                    dPrint("::>\(acc)")
+                    dPrint("->\(acc)")
                 }else {
                     dPrint("[\(programCounter)] 9xx: I/O destination/source \(instruction.address) is not valid for LMC, HALTING!!!")
                     shouldHalt = true
